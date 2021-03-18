@@ -1,6 +1,6 @@
 import isEmpty from 'is-empty';
 import memoize from 'fast-memoize';
-import hash from './fastSerializer';
+import LruCache from 'lru-cache';
 
 export interface TreeNodeObject {
   [name: string]: TreeNode;
@@ -124,11 +124,32 @@ const generateBranch = ({
   return isVisible ? [currentItem, ...nextLevelItems] : nextLevelItems;
 };
 
+const lruCacheOptions = {
+  max: 500,
+  maxAge: 1000 * 60 * 60
+};
+
+const specialCache = {
+  create: () => {
+    return new LruCache(lruCacheOptions);
+  }
+}
+
 function specialSerializer() {
-  return hash(arguments);
+  const { data, ...props} = arguments[0];
+  if (!data) {
+    return JSON.stringify(props);
+  }
+  if (data.timestamp) {
+    return data.timestamp + JSON.stringify(props);
+  } else {
+    return  JSON.stringify(data) + JSON.stringify(props);
+  }
 };
 
 export const fastWalk = memoize(walk, {
+  // @ts-ignore
+  cache: specialCache,
   serializer: specialSerializer
 });
 
