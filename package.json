@@ -116,6 +116,7 @@
     "classnames": "^2.2.6",
     "fast-memoize": "^2.5.1",
     "is-empty": "^1.2.0",
+    "lru-cache": "^6.0.0",
     "tiny-debounce": "^0.1.1"
   },
   "publishConfig": {
