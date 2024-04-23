@@ -1437,13 +1437,16 @@ function (_super) {
       });
     };
 
+    _this.setSearch = function (searchTerm) {
+      return _this.setState({
+        searchTerm: searchTerm
+      });
+    };
+
+    _this.setSearchDebounced = tinyDebounce(_this.setSearch, 125);
+
     _this.search = function (value) {
-      var debounceTime = _this.props.debounceTime;
-      var search = tinyDebounce(function (searchTerm) {
-        return _this.setState({
-          searchTerm: searchTerm
-        });
-      }, debounceTime);
+      var search = _this.setSearchDebounced || _this.setSearch;
       search(value);
     };
 
@@ -1583,6 +1586,11 @@ function (_super) {
 
     return _this;
   }
+
+  TreeMenu.prototype.componentDidMount = function () {
+    var debounceTime = this.props.debounceTime;
+    this.setSearchDebounced = tinyDebounce(this.setSearch, debounceTime);
+  };
 
   TreeMenu.prototype.componentDidUpdate = function (prevProps) {
     var _a = this.props,
