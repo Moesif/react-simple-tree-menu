@@ -1185,7 +1185,7 @@ var generateBranch = function generateBranch(_a) {
 };
 
 var lruCacheOptions = {
-  max: 500,
+  max: 1000,
   maxAge: 1000 * 60 * 60
 };
 var specialCache = {
@@ -1197,18 +1197,26 @@ var specialCache = {
 function specialSerializer() {
   var _a = arguments[0],
       data = _a.data,
-      props = __rest(_a, ["data"]);
+      searchTerm = _a.searchTerm,
+      openNodes = _a.openNodes;
 
   if (!data) {
-    return JSON.stringify(props);
+    return searchTerm;
+  }
+
+  var openNodesValues = '';
+
+  if (Array.isArray(openNodes)) {
+    openNodesValues = openNodes.join(',');
   }
 
   if (data.timestamp) {
-    return data.timestamp + JSON.stringify(props);
+    return data.timestamp + searchTerm + openNodesValues;
   } else {
-    return JSON.stringify(data) + JSON.stringify(props);
+    return searchTerm + openNodesValues;
   }
 }
+
 var fastWalk = src(walk, {
   // @ts-ignore
   cache: specialCache,
