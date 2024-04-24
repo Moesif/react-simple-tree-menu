@@ -125,7 +125,7 @@ const generateBranch = ({
 };
 
 const lruCacheOptions = {
-  max: 500,
+  max: 1000,
   maxAge: 1000 * 60 * 60
 };
 
@@ -133,19 +133,25 @@ const specialCache = {
   create: () => {
     return new LruCache(lruCacheOptions);
   }
-}
+};
 
 function specialSerializer() {
-  const { data, ...props} = arguments[0];
+  const { data, searchTerm, openNodes } = arguments[0];
   if (!data) {
-    return JSON.stringify(props);
+    return searchTerm;
   }
+
+  let openNodesValues = '';
+  if (Array.isArray(openNodes)) {
+    openNodesValues = openNodes.join(',');
+  }
+
   if (data.timestamp) {
-    return data.timestamp + JSON.stringify(props);
+    return data.timestamp + searchTerm + openNodesValues;
   } else {
-    return  JSON.stringify(data) + JSON.stringify(props);
+    return searchTerm + openNodesValues;
   }
-};
+}
 
 export const fastWalk = memoize(walk, {
   // @ts-ignore
