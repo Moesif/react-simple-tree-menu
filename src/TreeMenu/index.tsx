@@ -60,6 +60,11 @@ class TreeMenu extends React.Component<TreeMenuProps, TreeMenuState> {
     focusKey: this.props.initialFocusKey || '',
   };
 
+  componentDidMount() {
+    const { debounceTime } = this.props;
+    this.setSearchDebounced = debounce(this.setSearch, debounceTime);
+  }
+
   componentDidUpdate(prevProps: TreeMenuProps) {
     const { data, initialOpenNodes, resetOpenNodesOnDataUpdate } = this.props;
     if (prevProps.data !== data && resetOpenNodesOnDataUpdate && initialOpenNodes) {
@@ -74,12 +79,11 @@ class TreeMenu extends React.Component<TreeMenuProps, TreeMenuState> {
     this.setState({ openNodes, searchTerm: '', activeKey: activeKey || '', focusKey: focusKey || activeKey || '' });
   };
 
+  setSearch = (searchTerm: string) => this.setState({ searchTerm });
+  setSearchDebounced = debounce(this.setSearch, 125);
+
   search = (value: string) => {
-    const { debounceTime } = this.props;
-    const search = debounce(
-      (searchTerm: string) => this.setState({ searchTerm }),
-      debounceTime
-    );
+    const search = this.setSearchDebounced || this.setSearch;
     search(value);
   };
 

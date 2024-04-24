@@ -1191,7 +1191,7 @@ var generateBranch = function generateBranch(_a) {
 };
 
 var lruCacheOptions = {
-  max: 500,
+  max: 1000,
   maxAge: 1000 * 60 * 60
 };
 var specialCache = {
@@ -1203,18 +1203,26 @@ var specialCache = {
 function specialSerializer() {
   var _a = arguments[0],
       data = _a.data,
-      props = __rest(_a, ["data"]);
+      searchTerm = _a.searchTerm,
+      openNodes = _a.openNodes;
 
   if (!data) {
-    return JSON.stringify(props);
+    return searchTerm;
+  }
+
+  var openNodesValues = '';
+
+  if (Array.isArray(openNodes)) {
+    openNodesValues = openNodes.join(',');
   }
 
   if (data.timestamp) {
-    return data.timestamp + JSON.stringify(props);
+    return data.timestamp + searchTerm + openNodesValues;
   } else {
-    return JSON.stringify(data) + JSON.stringify(props);
+    return searchTerm + openNodesValues;
   }
 }
+
 var fastWalk = src(walk, {
   // @ts-ignore
   cache: specialCache,
@@ -1437,13 +1445,16 @@ function (_super) {
       });
     };
 
+    _this.setSearch = function (searchTerm) {
+      return _this.setState({
+        searchTerm: searchTerm
+      });
+    };
+
+    _this.setSearchDebounced = tinyDebounce(_this.setSearch, 125);
+
     _this.search = function (value) {
-      var debounceTime = _this.props.debounceTime;
-      var search = tinyDebounce(function (searchTerm) {
-        return _this.setState({
-          searchTerm: searchTerm
-        });
-      }, debounceTime);
+      var search = _this.setSearchDebounced || _this.setSearch;
       search(value);
     };
 
@@ -1583,6 +1594,11 @@ function (_super) {
 
     return _this;
   }
+
+  TreeMenu.prototype.componentDidMount = function () {
+    var debounceTime = this.props.debounceTime;
+    this.setSearchDebounced = tinyDebounce(this.setSearch, debounceTime);
+  };
 
   TreeMenu.prototype.componentDidUpdate = function (prevProps) {
     var _a = this.props,

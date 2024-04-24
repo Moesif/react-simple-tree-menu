@@ -30,8 +30,11 @@ declare type TreeMenuState = {
 declare class TreeMenu extends React.Component<TreeMenuProps, TreeMenuState> {
     static defaultProps: TreeMenuProps;
     state: TreeMenuState;
+    componentDidMount(): void;
     componentDidUpdate(prevProps: TreeMenuProps): void;
     resetOpenNodes: (newOpenNodes?: string[] | undefined, activeKey?: string | undefined, focusKey?: string | undefined) => void;
+    setSearch: (searchTerm: string) => void;
+    setSearchDebounced: any;
     search: (value: string) => void;
     toggleNode: (node: string) => void;
     generateItems: () => TreeMenuItem[];
